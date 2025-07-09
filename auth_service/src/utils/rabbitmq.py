@@ -1,3 +1,4 @@
+import json
 import uuid
 
 import aio_pika
@@ -25,3 +26,18 @@ async def get_task_count_from_task_service(user_id: int) -> int:
                 task_count = int(message.body.decode())
                 await message.ack()
                 return task_count
+
+async def publish_user_registered_event(username: str, email: str):
+    connection = await aio_pika.connect_robust("amqp://user:password@localhost/")
+    channel = await connection.channel()
+    message_body = {
+        "username": username,
+        "email": email,
+    }
+    message = aio_pika.Message(
+        body=json.dumps(message_body).encode()
+    )
+    await channel.default_exchange.publish(
+        message, routing_key="email.notifications"
+    )
+    await connection.close()

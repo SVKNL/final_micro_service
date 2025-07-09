@@ -1,29 +1,75 @@
-version: '3.8'
+version: "3.9"
+
 services:
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3-management
+    container_name: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  auth_postgres:
+    image: postgres:14
+    container_name: auth_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_auth:/var/lib/postgresql/data
+
+  task_postgres:
+    image: postgres:14
+    container_name: task_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_task:/var/lib/postgresql/data
 
   auth-service:
-    build: ./auth-service
+    build:
+      context: ./auth-service
+    container_name: auth-service
     ports:
-      - "8001:8000"
+      - "8000:8000"
     depends_on:
       - rabbitmq
+      - auth_postgres
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@auth_postgres:5432/auth_db
 
   task-service:
-    build: ./task-service
+    build:
+      context: ./task-service
+    container_name: task-service
     ports:
-      - "8002:8000"
+      - "8001:8001"
     depends_on:
       - rabbitmq
+      - task_postgres
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@task_postgres:5432/task_db
 
   email-service:
-    build: ./email-service
-    ports:
-      - "8003:8000"
+    build:
+      context: ./email-service
+    container_name: email-service
     depends_on:
       - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
 
+volumes:
+  postgres_data_auth:
+  postgres_data_task:

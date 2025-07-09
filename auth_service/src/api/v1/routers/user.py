@@ -51,6 +51,8 @@ async def add_user(
 ):
     user.password = hash_password(user.password).decode('utf-8')
     user_id = await service.add_user(user)
+    await rabbitmq.publish_user_registered_event(user.username, user.email)
+
     return {'user_id': user_id}
 
 
