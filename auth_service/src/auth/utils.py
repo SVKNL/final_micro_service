@@ -120,10 +120,10 @@ async def get_current_auth_user(
 ) -> UserDB:
     username: str = payload.get('sub')
     user = await service.get_by_username(username)
-    if user:
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token not found(username not found)",
         )
     else:
-        return user.username
+        return user

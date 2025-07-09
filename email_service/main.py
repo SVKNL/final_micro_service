@@ -1,6 +1,7 @@
 import asyncio
 from fastapi import FastAPI
-from rabbitmq_consumer import start_consumer
+
+from rabbitmq_comsumer import start_consumer
 
 app = FastAPI()
 

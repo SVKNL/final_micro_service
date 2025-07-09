@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from dotenv import find_dotenv, load_dotenv
@@ -5,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from src.api import router
+from src.utils.rabbitmq import listen_for_requests
 
 
 def create_fast_api_app() -> FastAPI:
@@ -27,3 +29,7 @@ def create_fast_api_app() -> FastAPI:
 
 
 app = create_fast_api_app()
+
+@app.on_event("startup")
+async def startup():
+    asyncio.create_task(listen_for_requests())

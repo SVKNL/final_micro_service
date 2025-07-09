@@ -46,4 +46,5 @@ class TasksService:
     @transaction_mode
     async def get_tasks_watched_and_executed_count(self, user_id):
         async with self.uow:
-            await self.uow.task.get_watched_and_executed_count(user_id)
+            result = await self.uow.task.get_watched_and_executed_count(user_id)
+            return result

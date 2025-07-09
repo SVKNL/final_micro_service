@@ -40,7 +40,8 @@ async def auth_user_get_info(
         'username': user.full_name,
         'email': user.email,
         'logged_in_at': iat,
-        'task_counts': task_counts
+        'watched_tasks': task_counts['watcher_count'],
+        'executed_tasks': task_counts['executor_count'],
     }
 
 
@@ -51,7 +52,7 @@ async def add_user(
 ):
     user.password = hash_password(user.password).decode('utf-8')
     user_id = await service.add_user(user)
-    await rabbitmq.publish_user_registered_event(user.username, user.email)
+    await rabbitmq.publish_user_registered_event(user.full_name, user.email)
 
     return {'user_id': user_id}
 

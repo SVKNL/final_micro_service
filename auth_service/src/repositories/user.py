@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from src.models.task import User
+from src.models.user import User
 from src.utils.repository import SQLAlchemyRepository
 
 

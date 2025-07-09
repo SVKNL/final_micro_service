@@ -4,7 +4,7 @@ from typing import Generic, TypeVar
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.task import Base
+from src.models.base import Base
 
 
 class AbstractRepository(ABC):

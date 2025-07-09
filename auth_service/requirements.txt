@@ -25,5 +25,14 @@ uvicorn==0.34.3
 uvloop==0.21.0
 watchfiles==1.0.5
 websockets==15.0.1
-aio-pika==0.28.0
+aio-pika
+bcrypt==4.3.0
+cffi==1.17.1
+cryptography==45.0.4
+dnspython==2.7.0
+email_validator==2.2.0
+pycparser==2.22
+PyJWT==2.10.1
+python-multipart==0.0.20
+
 

@@ -5,7 +5,7 @@ import aio_pika
 
 
 async def get_task_count_from_task_service(user_id: int) -> int:
-    connection = await aio_pika.connect_robust("amqp://user:password@localhost/")
+    connection = await aio_pika.connect_robust("amqp://user:password@rabbitmq/")
     async with connection:
         channel = await connection.channel()
 
@@ -23,12 +23,14 @@ async def get_task_count_from_task_service(user_id: int) -> int:
 
         async for message in result_queue:
             if message.correlation_id == correlation_id:
-                task_count = int(message.body.decode())
+                data = json.loads(message.body.decode())  # ← правильный способ
                 await message.ack()
-                return task_count
+                if data is None:
+                    data = {'watcher_count': 0}
+                return data
 
 async def publish_user_registered_event(username: str, email: str):
-    connection = await aio_pika.connect_robust("amqp://user:password@localhost/")
+    connection = await aio_pika.connect_robust("amqp://user:password@rabbitmq/")
     channel = await connection.channel()
     message_body = {
         "username": username,

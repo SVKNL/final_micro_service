@@ -72,16 +72,14 @@ class SQLAlchemyRepository(AbstractRepository, Generic[M]):
             return True
         return False
 
-    async def find_executed_and_watched_count(self, user_id: int) -> dict:
-        stmt = (
-            select(
-                func.count().filter(self.model.author_id == user_id).label('author_count'),
-                func.count().filter(self.model.assignee_id == user_id).label('assignee_count')
-            )
+
+    async def get_watched_and_executed_count(self, user_id: int) -> dict:
+        stmt = select(
+            func.count(case((self.model.author_id == user_id, 1))).label('author_count'),
+            func.count(case((self.model.assignee_id == user_id, 1))).label('assignee_count'),
         )
 
         result = await self.session.execute(stmt)
-
         data = result.first()
 
         return {

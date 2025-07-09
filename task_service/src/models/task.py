@@ -1,7 +1,7 @@
 import enum
 from datetime import date, datetime
 
-from sqlalchemy import ForeignKey, String, Text, text
+from sqlalchemy import ForeignKey, String, Text, text, ARRAY, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.schemas.task import TaskDB
@@ -142,8 +142,8 @@ class Task(Base):
         back_populates='tasks')
     board = relationship('Board',
                          back_populates='tasks')
-    watchers: Mapped[list[user_id]]
-    executors: Mapped[list[user_id]]
+    watchers: Mapped[list[int]] = mapped_column(ARRAY(Integer), default=list)
+    executors: Mapped[list[int]] = mapped_column(ARRAY(Integer), default=list)
 
     def to_schema(self) -> TaskDB:
         return TaskDB(**self.__dict__)

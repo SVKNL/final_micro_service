@@ -8,68 +8,70 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-
-  auth_postgres:
-    image: postgres:14
-    container_name: auth_postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: auth_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data_auth:/var/lib/postgresql/data
-
-  task_postgres:
-    image: postgres:14
-    container_name: task_postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: task_db
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data_task:/var/lib/postgresql/data
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
 
   auth-service:
     build:
-      context: ./auth-service
+      context: ./auth_service
     container_name: auth-service
     ports:
       - "8000:8000"
     depends_on:
-      - rabbitmq
       - auth_postgres
+      - rabbitmq
     environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@auth_postgres:5432/auth_db
+      RABBITMQ_URL: amqp://user:password@rabbitmq/
 
   task-service:
     build:
-      context: ./task-service
+      context: ./task_service
     container_name: task-service
     ports:
       - "8001:8001"
     depends_on:
-      - rabbitmq
       - task_postgres
+      - rabbitmq
     environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@task_postgres:5432/task_db
+      RABBITMQ_URL: amqp://user:password@rabbitmq/
 
   email-service:
     build:
-      context: ./email-service
+      context: ./email_service
     container_name: email-service
     depends_on:
       - rabbitmq
     environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      RABBITMQ_URL: amqp://user:password@rabbitmq/
+
+  auth_postgres:
+    image: postgres:15
+    container_name: auth_postgres
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+
+  task_postgres:
+    image: postgres:15
+    container_name: task_postgres
+    environment:
+      POSTGRES_DB: task_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - task_db_data:/var/lib/postgresql/data
+
+
 
 volumes:
-  postgres_data_auth:
-  postgres_data_task:
+  auth_db_data:
+  task_db_data:
