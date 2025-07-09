@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8001:8000"
+    depends_on:
+      - rabbitmq
+
+  task-service:
+    build: ./task-service
+    ports:
+      - "8002:8000"
+    depends_on:
+      - rabbitmq
+
+  email-service:
+    build: ./email-service
+    ports:
+      - "8003:8000"
+    depends_on:
+      - rabbitmq
+

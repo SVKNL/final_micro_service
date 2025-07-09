@@ -1,0 +1,5 @@
+RABBITMQ_URL = "amqp://guest:guest@rabbitmq:5672/"
+EXCHANGE_NAME = "microservices"
+AUTH_QUEUE = "auth_queue"
+TASK_QUEUE = "task_queue"
+EMAIL_QUEUE = "email.notifications"
